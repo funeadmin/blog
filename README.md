@@ -1,0 +1,1 @@
+This will be a blog site, for my own personal work.  I will be able to discuss topics, upload media, and share with friends. 

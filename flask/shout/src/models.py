@@ -9,6 +9,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(128), unique=True, nullable=False)
     password = db.Column(db.String(128), nullable=False)
+    shouts = db.relationship('Shout', backref='user', cascade="all,delete")
 
     def __init__(self, username: str, password: str):
         self.username = username

@@ -1,21 +1,21 @@
 from flask import Blueprint, jsonify, abort, request
-from ..models import Tweet, User, db
+from ..models import Shout, User, db
 
-bp = Blueprint('tweets',__name__, url_prefix='/tweets')
+bp = Blueprint('shouts',__name__, url_prefix='/shouts')
 
 
 @bp.route('', methods=['GET']) # decorator takes path and list of HTTP verbs
 def index():
-    tweets = Tweet.query.all() # ORM performs SELECT query
+    shouts = Shout.query.all() # ORM performs SELECT query
     result = []
-    for t in tweets:
-        result.append(t.serialize()) # build list of Tweets as dictionaries
+    for s in shouts:
+        result.append(s.serialize()) # build list of shouts as dictionaries
     return jsonify(result) # return JSON response
 
 @bp.route('/<int:id>', methods=['GET'])
 def show(id: int):
-    t = Tweet.query.get_or_404(id, "Tweet not found")
-    return jsonify(t.serialize())
+    s = Shout.query.get_or_404(id, "Shout not found")
+    return jsonify(s.serialize())
 
 @bp.route('', methods=['POST'])
 def create():
@@ -24,20 +24,20 @@ def create():
         return abort(400)
     # user with id of user_id must exist
     User.query.get_or_404(request.json['user_id'], "User not found")
-    # construct Tweet
-    t = Tweet(
+    # construct Shout
+    s = Shout(
         user_id=request.json['user_id'],
         content=request.json['content']
     )
-    db.session.add(t) # prepare CREATE statement
+    db.session.add(s) # prepare CREATE statement
     db.session.commit() # execute CREATE statement
-    return jsonify(t.serialize())
+    return jsonify(s.serialize())
 
 @bp.route('/<int:id>', methods=['DELETE'])
 def delete(id: int):
-    t = Tweet.query.get_or_404(id, "Tweet not found")
+    s = Shout.query.get_or_404(id, "Shout not found")
     try:
-        db.session.delete(t) # prepare DELETE statement
+        db.session.delete(s) # prepare DELETE statement
         db.session.commit() # execute DELETE statement
         return jsonify(True)
     except:
@@ -46,8 +46,8 @@ def delete(id: int):
 
 @bp.route('/<int:id>/liking_users', methods=['GET'])
 def liking_users(id: int):
-    t = Tweet.query.get_or_404(id)
+    s = Shout.query.get_or_404(id)
     result = []
-    for u in t.liking_users:
+    for u in s.liking_users:
         result.append(u.serialize())
     return jsonify(result)

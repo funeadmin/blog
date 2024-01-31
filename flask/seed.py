@@ -7,22 +7,22 @@ import string
 import hashlib
 import secrets
 from faker import Faker
-from twitter.src.models import User, Tweet, likes_table, db
-from twitter.src import create_app
+from shout.src.models import User, Shout, likes_table, db
+from shout.src import create_app
 
 USER_COUNT = 50
-TWEET_COUNT = 100
+SHOUT_COUNT = 100
 LIKE_COUNT = 400
 
-assert LIKE_COUNT <= (USER_COUNT * TWEET_COUNT)
+assert LIKE_COUNT <= (USER_COUNT * SHOUT_COUNT)
 
 
 def random_passhash():
     """Get hashed and salted password of length N | 8 <= N <= 15"""
     raw = ''.join(
         random.choices(
-            string.ascii_letters + string.digits + '!@#$%&', # valid pw characters
-            k=random.randint(8, 15) # length of pw
+            string.ascii_letters + string.digits + '!@#$%&',  # valid pw characters
+            k=random.randint(8, 15)  # length of pw
         )
     )
 
@@ -34,7 +34,7 @@ def random_passhash():
 def truncate_tables():
     """Delete all rows from database tables"""
     db.session.execute(likes_table.delete())
-    Tweet.query.delete()
+    Shout.query.delete()
     User.query.delete()
     db.session.commit()
 
@@ -49,7 +49,7 @@ def main():
     last_user = None  # save last user
     for _ in range(USER_COUNT):
         last_user = User(
-            username=fake.unique.first_name().lower() + str(random.randint(1,150)),
+            username=fake.unique.first_name().lower() + str(random.randint(1, 150)),
             password=random_passhash()
         )
         db.session.add(last_user)
@@ -57,31 +57,32 @@ def main():
     # insert users
     db.session.commit()
 
-    last_tweet = None  # save last tweet
-    for _ in range(TWEET_COUNT):
-        last_tweet = Tweet(
+    last_shout = None  # save last shout
+    for _ in range(SHOUT_COUNT):
+        last_shout = Shout(
             content=fake.sentence(),
             user_id=random.randint(last_user.id - USER_COUNT + 1, last_user.id)
         )
-        db.session.add(last_tweet)
+        db.session.add(last_shout)
 
-    # insert tweets
+    # insert tweets - shouts
     db.session.commit()
 
-    user_tweet_pairs = set()
-    while len(user_tweet_pairs) < LIKE_COUNT:
+    user_shout_pairs = set()
+    while len(user_shout_pairs) < LIKE_COUNT:
 
         candidate = (
             random.randint(last_user.id - USER_COUNT + 1, last_user.id),
-            random.randint(last_tweet.id - TWEET_COUNT + 1, last_tweet.id)
+            random.randint(last_shout.id - SHOUT_COUNT + 1, last_shout.id)
         )
 
-        if candidate in user_tweet_pairs:
+        if candidate in user_shout_pairs:
             continue  # pairs must be unique
 
-        user_tweet_pairs.add(candidate)
+        user_shout_pairs.add(candidate)
 
-    new_likes = [{"user_id": pair[0], "tweet_id": pair[1]} for pair in list(user_tweet_pairs)]
+    new_likes = [{"user_id": pair[0], "shout_id": pair[1]}
+                 for pair in list(user_shout_pairs)]
     insert_likes_query = likes_table.insert().values(new_likes)
     db.session.execute(insert_likes_query)
 

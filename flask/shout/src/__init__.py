@@ -2,8 +2,6 @@ import os
 from flask import Flask
 from flask_migrate import Migrate
 
-from .api import shouts
-
 # https://flask.palletsprojects.com/en/2.0.x/patterns/appfactories/
 
 
@@ -33,7 +31,7 @@ def create_app(test_config=None):
     db.init_app(app)
     migrate = Migrate(app, db)
 
-    from .api import users
+    from .api import users, shouts
     app.register_blueprint(users.bp)
     app.register_blueprint(shouts.bp)
 

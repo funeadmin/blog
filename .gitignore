@@ -3,3 +3,4 @@ venv*
 veggies.py
 *.log
 *.txt
+seed.py

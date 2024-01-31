@@ -4,3 +4,4 @@ veggies.py
 *.log
 *.txt
 seed.py
+docker-compose.yml

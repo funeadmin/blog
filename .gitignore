@@ -2,4 +2,4 @@ venv*
 .env
 veggies.py
 *.log
-requirements.txt
+*.txt
